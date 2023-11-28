@@ -4,7 +4,7 @@ const router = new Router()
 
 router.use(Router.json())
 
-router.post('/register', authController.register)
-router.post('/login', authController.login)
+router.post('/register', authController.Register)
+router.post('/login', authController.Login)
 
 module.exports = router

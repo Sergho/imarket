@@ -1,10 +1,10 @@
 const user = require('../models/User')
-const {validationResult} = require('express-validator')
+const product = require('../models/Product')
 
 class AdminController{
-    async getRoles(req, res){
+    async GetRoles(req, res){
         try {
-            const roles = await user.getRoles()
+            const roles = await user.GetRoles()
             if(roles.length === 0){
                 return res.status(404).json({message: "Roles not found"})
             }
@@ -15,9 +15,9 @@ class AdminController{
             return res.status(500).json({message: "Roles error"}) 
         }
     }
-    async getUsers(req, res){
+    async GetUsers(req, res){
         try {
-            const users = await user.getUsers(req.query.limit)
+            const users = await user.GetUsers(req.query.limit)
             if(users.length === 0){
                 res.status(404).json({message: "Users not found"})
             }
@@ -27,13 +27,13 @@ class AdminController{
             return res.status(500).json({message: "Users error"})
         }
     }
-    async getUser(req, res){
+    async GetUser(req, res){
         try {
-            if(!req.params.user_id){
+            if(!req.params.userId){
                 return res.status(400).json({message: "Bad request"})
             }
 
-            const singleUser = await user.getUser(req.params.user_id)
+            const singleUser = await user.GetUser(req.params.userId)
             if(!singleUser){
                 return res.status(404).json({message: "User not found"})
             }
@@ -43,56 +43,38 @@ class AdminController{
             return res.status(500).json({message: "User error"})
         }
     }
-    async changeRole(req, res){
+    async EditUser(req, res){
         try {
-            if(!req.body.roleId || !req.params.user_id){
+            if(!req.params.userId){
                 return res.status(400).json({message: "Bad request"})
             }
 
-            const modified = await user.changeRole(req.params.user_id, req.body.roleId)
-            if(!modified){
-                return res.status(404).json({message: "User not found"})
+            if(req.body.roleId && !await user.GetRole(req.body.roleId)){
+                return res.status(404).json({message: "Role not found"})
             }
 
-            res.status(200).json({message: "User role changed", user: modified})
-        } catch (e) {
-            console.log(e)
-            return res.status(500).json({message: "User error"})
-        }
-    }
-    async editUser(req, res){
-        try {
-            if(!req.params.user_id){
-                return res.status(400).json({message: "Bad request"})
-            }
-
-            await user.editUserNames(req.params.user_id, req.body)
-            await user.editUserPassword(req.params.user_id, req.body.password)
-
-            if(await user.findUser(req.body.email)){
+            const duplicate = await user.FindUser(req.body.email)
+            if(req.body.email && duplicate && duplicate.user_id != req.params.userId){
                 return res.status(409).json({message: "Another user with this email already exists"})
             }
 
-            await user.editUserEmail(req.params.user_id, req.body.email)
-
-            const modified = await user.getUser(req.params.user_id)
+            const modified = await user.EditUser(req.params.userId, req.body)
             if(!modified){
                 return res.status(404).json({message: "User not found"})
             }
             return res.status(200).json({message: "User modified", user: modified})
-
         } catch (e) {
             console.log(e)
             return res.status(500).json({message: "User error"})
         }
     }
-    async deleteUser(req, res){
+    async DeleteUser(req, res){
         try {
-            if(!req.params.user_id){
+            if(!req.params.userId){
                 return res.status(400).json({message: "Bad request"})
             }
 
-            const deleted = await user.deleteUser(req.params.user_id)
+            const deleted = await user.DeleteUser(req.params.userId)
             if(!deleted){
                 return res.status(404).json({message: "User not found"})
             }
@@ -101,6 +83,87 @@ class AdminController{
         } catch (e) {
             console.log(e)
             return res.status(500).json({message: "User error"})
+        }
+    }
+
+    async GetSuppliers(req, res){
+        try {
+            const suppliers = await product.GetSuppliers()
+            if(suppliers.length === 0){
+                return res.status(404).json({message: "Suppliers not found"})
+            }
+
+            return res.status(200).json({message: "OK", suppliers: suppliers})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Suppliers error"})
+        }
+    }
+    async GetProductTypes(req, res){
+        try {
+            const types = await product.GetProductTypes()
+            if(types.length === 0){
+                return res.status(404).json({message: "Product types not found"})
+            }
+
+            return res.status(200).json({message: "OK", productTypes: types})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Product types error"})
+        }
+    }
+    async CreateProduct(req, res){
+        try {
+            if(!req.body.name || !req.body.price){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const newProduct = await product.CreateProduct(req.body)
+            return res.status(201).json({message: "Product created", product: newProduct})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Product error"})
+        }
+    }
+    async EditProduct(req, res){
+        try {
+            if(!req.params.productId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            if(req.body.supplierId && !await product.GetSupplier(req.body.supplierId)){
+                return res.status(404).json({message: "Supplier not found"})
+            }
+
+            if(req.body.typeId && !await product.GetProductType(req.body.typeId)){
+                return res.status(404).json({message: "Product type not found"})
+            }
+
+            const modified = await product.EditProduct(req.params.productId, req.body)
+            if(!modified){
+                return res.status(404).json({message: "Product not found"})
+            }
+            return res.status(200).json({message: "Product modified", product: modified})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Product error"})
+        }
+    }
+    async DeleteProduct(req, res){
+        try {
+            if(!req.params.productId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const deleted = await product.DeleteProduct(req.params.productId)
+            if(!deleted){
+                return res.status(404).json({message: "Product not found"})
+            }
+
+            return res.status(200).json({message: "Product deleted", product: deleted})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Product error"})
         }
     }
 }

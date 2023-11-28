@@ -1,4 +1,4 @@
-const { decodeData } = require("../models/User")
+const { DecodeData } = require("../models/User")
 
 module.exports = (req, res, next) => {
     try {
@@ -11,8 +11,8 @@ module.exports = (req, res, next) => {
             return res.status(401).json({message: "Unauthorized"})
         }
 
-        const decoded = decodeData(token)
-        if(!decoded.user_id || !decoded.role){
+        const decoded = DecodeData(token)
+        if(!decoded.userId || !decoded.role){
             return res.status(401).json({message: "Unauthorized"})
         }
         req.user = decoded

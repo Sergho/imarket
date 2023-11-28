@@ -111,7 +111,7 @@ ALTER SEQUENCE public.product_product_id_seq OWNED BY public.product.product_id;
 --
 
 CREATE TABLE public.product_type (
-    product_type_id integer NOT NULL,
+    type_id integer NOT NULL,
     name character varying(50) NOT NULL
 );
 
@@ -137,7 +137,7 @@ ALTER SEQUENCE public.product_type_product_type_id_seq OWNER TO postgres;
 -- Name: product_type_product_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.product_type_product_type_id_seq OWNED BY public.product_type.product_type_id;
+ALTER SEQUENCE public.product_type_product_type_id_seq OWNED BY public.product_type.type_id;
 
 
 --
@@ -275,10 +275,10 @@ ALTER TABLE ONLY public.product ALTER COLUMN product_id SET DEFAULT nextval('pub
 
 
 --
--- Name: product_type product_type_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: product_type type_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.product_type ALTER COLUMN product_type_id SET DEFAULT nextval('public.product_type_product_type_id_seq'::regclass);
+ALTER TABLE ONLY public.product_type ALTER COLUMN type_id SET DEFAULT nextval('public.product_type_product_type_id_seq'::regclass);
 
 
 --
@@ -353,6 +353,7 @@ COPY public.product (product_id, name, supplier_id, type_id, price, description)
 28	Lenovo Legion Y740 Gaming Laptop	8	2	17990.00	Игровой ноутбук с высокой производительностью, технологией NVIDIA GeForce и системой охлаждения Legion Coldfront.
 29	ASUS ZenBook 14	9	2	99990.00	Компактный ноутбук с экраном NanoEdge и производительным процессором Intel Core i7.
 30	Xiaomi Mi Smart Band 6	10	6	5990.00	Фитнес-браслет с большим AMOLED экраном, множеством трекеров активности и долгим временем работы от батареи.
+31	test	\N	\N	123.00	\N
 \.
 
 
@@ -360,7 +361,7 @@ COPY public.product (product_id, name, supplier_id, type_id, price, description)
 -- Data for Name: product_type; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.product_type (product_type_id, name) FROM stdin;
+COPY public.product_type (type_id, name) FROM stdin;
 1	Смартфоны
 2	Ноутбуки
 3	Планшеты
@@ -412,10 +413,10 @@ COPY public.supplier (supplier_id, name) FROM stdin;
 --
 
 COPY public."user" (user_id, first_name, last_name, mid_name, email, password_hash, role_id) FROM stdin;
-3	Sergey	Chernyshov	Dmitrievich	sergche04@gmail.com	$2a$07$D1nCJNUd9AS2xhOlimK/X.9ZtfO3iWldoukFVWX/u0Q2VArh6igcu	1
-4	\N	\N	\N	12304@gmail.com	$2a$07$2KU4Kw4NDaJmI7GYYVpuM.zit9TgE5bhtHYwY8czP8SJoC4Sb8k5e	2
-6	\N	\N	\N	12231204@gmail.com	$2a$07$uD271jE.Pc2lV7HMhzHyqe4hzoSKWnaqiCRHtjYtQIpjglmBvhSDe	2
 2	Test	Testov	Testovich	tes@gmail.com	$2a$07$nLu1.YcPRsZCPqga6U9D6.H8c5qFrNCUAdr8YLNH6uV7OzvMYHvwe	2
+4	\N	\N	\N	12304@gmail.com	$2a$07$icBieLsqTIQfFRtE6M7AkOoD7JOy/VSl4UE7r/FAducgKNGlVgFPq	1
+3	Sergey	Chernyshov	Dmitrievich	sergche04@gmail.com	$2a$07$D1nCJNUd9AS2xhOlimK/X.9ZtfO3iWldoukFVWX/u0Q2VArh6igcu	2
+6	Sergho	Chernyshov	\N	sergch4e04@gmail.com	$2a$07$HdLFusd2a/bfrBYsR103.uleLpoiq644uwt4OC5oSndTC6nVPxJVS	2
 \.
 
 
@@ -430,7 +431,7 @@ SELECT pg_catalog.setval('public.order_order_id_seq', 1, false);
 -- Name: product_product_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.product_product_id_seq', 30, true);
+SELECT pg_catalog.setval('public.product_product_id_seq', 31, true);
 
 
 --
@@ -458,7 +459,7 @@ SELECT pg_catalog.setval('public.supplier_supplier_id_seq', 10, true);
 -- Name: user_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_user_id_seq', 7, true);
+SELECT pg_catalog.setval('public.user_user_id_seq', 8, true);
 
 
 --
@@ -490,7 +491,7 @@ ALTER TABLE ONLY public.product
 --
 
 ALTER TABLE ONLY public.product_type
-    ADD CONSTRAINT product_type_pkey PRIMARY KEY (product_type_id);
+    ADD CONSTRAINT product_type_pkey PRIMARY KEY (type_id);
 
 
 --
@@ -570,7 +571,7 @@ ALTER TABLE ONLY public.product
 --
 
 ALTER TABLE ONLY public.product
-    ADD CONSTRAINT fk_product_type_id FOREIGN KEY (type_id) REFERENCES public.product_type(product_type_id);
+    ADD CONSTRAINT fk_product_type_id FOREIGN KEY (type_id) REFERENCES public.product_type(type_id);
 
 
 --
