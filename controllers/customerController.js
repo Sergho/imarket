@@ -1,6 +1,6 @@
 const user = require('../models/User')
 const product = require('../models/Product')
-const {validationResult} = require('express-validator')
+const shoppingCart = require('../models/ShoppingCart')
 
 class CustomerController{
     async SelfData(req, res){
@@ -41,6 +41,61 @@ class CustomerController{
         } catch (e) {
             console.log(e)
             return res.status(500).json({message: "Product error"})
+        }
+    }
+
+    async GetShoppingCart(req, res){
+        try {
+            const cart = await shoppingCart.GetCart(req.user.userId)
+            if(cart.items.length == 0){
+                return res.status(404).json({message: "Shopping cart is empty"})
+            }
+            return res.status(200).json({message: "OK", shopping_cart: cart})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Shopping cart error"})
+        }
+    }
+    async AddItemToCart(req, res){
+        try {
+            if(!req.body.productId || !req.body.amount){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            if(!await product.GetProduct(req.body.productId)){
+                return res.status(404).json({message: "Product not found"})
+            }
+
+            if(await shoppingCart.GetItem(req.user.userId, req.body.productId)){
+                return res.status(409).json({message: "The item is already in the shopping cart"})
+            }
+            
+            const item = await shoppingCart.AddItem(req.user.userId, req.body.productId, req.body.amount)
+            return res.status(201).json({message: "Item added to the shopping cart", item: item})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Shopping cart error"})
+        }
+    }
+    async DeleteItemFromCart(req, res){
+        try {
+            if(!req.params.productId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            if(!await product.GetProduct(req.params.productId)){
+                return res.status(404).json({message: "Product not found"})
+            }
+
+            if(!await shoppingCart.GetItem(req.user.userId, req.params.productId)){
+                return res.status(404).json({message: "The item not found in the shopping cart"})
+            }
+
+            const deleted = await shoppingCart.DeleteItem(req.user.userId, req.params.productId)
+            return res.status(200).json({message: "Item deleted from the shopping cart", item: deleted})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Shopping cart error"})
         }
     }
 }

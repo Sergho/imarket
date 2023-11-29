@@ -387,6 +387,9 @@ COPY public.role (role_id, name) FROM stdin;
 --
 
 COPY public.shopping_cart (user_id, product_id, amount) FROM stdin;
+3	1	1
+3	4	123
+3	20	4
 \.
 
 
@@ -507,7 +510,7 @@ ALTER TABLE ONLY public.role
 --
 
 ALTER TABLE ONLY public.shopping_cart
-    ADD CONSTRAINT shopping_cart_pkey PRIMARY KEY (user_id);
+    ADD CONSTRAINT shopping_cart_pkey PRIMARY KEY (user_id, product_id);
 
 
 --
