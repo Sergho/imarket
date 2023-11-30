@@ -307,6 +307,7 @@ ALTER TABLE ONLY public."user" ALTER COLUMN user_id SET DEFAULT nextval('public.
 --
 
 COPY public."order" (order_id, user_id, date) FROM stdin;
+16	3	2023-11-30 02:01:28.854101
 \.
 
 
@@ -315,6 +316,9 @@ COPY public."order" (order_id, user_id, date) FROM stdin;
 --
 
 COPY public."order-product" (order_id, product_id, amount) FROM stdin;
+16	1	1
+16	4	123
+16	20	4
 \.
 
 
@@ -387,9 +391,6 @@ COPY public.role (role_id, name) FROM stdin;
 --
 
 COPY public.shopping_cart (user_id, product_id, amount) FROM stdin;
-3	1	1
-3	4	123
-3	20	4
 \.
 
 
@@ -416,10 +417,10 @@ COPY public.supplier (supplier_id, name) FROM stdin;
 --
 
 COPY public."user" (user_id, first_name, last_name, mid_name, email, password_hash, role_id) FROM stdin;
+6	Sergho	Chernyshov	\N	sergch4e04@gmail.com	$2a$07$HdLFusd2a/bfrBYsR103.uleLpoiq644uwt4OC5oSndTC6nVPxJVS	1
+3	Sergey	Chernyshov	Dmitrievich	sergche04@gmail.com	$2a$07$D1nCJNUd9AS2xhOlimK/X.9ZtfO3iWldoukFVWX/u0Q2VArh6igcu	1
 2	Test	Testov	Testovich	tes@gmail.com	$2a$07$nLu1.YcPRsZCPqga6U9D6.H8c5qFrNCUAdr8YLNH6uV7OzvMYHvwe	2
 4	\N	\N	\N	12304@gmail.com	$2a$07$icBieLsqTIQfFRtE6M7AkOoD7JOy/VSl4UE7r/FAducgKNGlVgFPq	1
-3	Sergey	Chernyshov	Dmitrievich	sergche04@gmail.com	$2a$07$D1nCJNUd9AS2xhOlimK/X.9ZtfO3iWldoukFVWX/u0Q2VArh6igcu	2
-6	Sergho	Chernyshov	\N	sergch4e04@gmail.com	$2a$07$HdLFusd2a/bfrBYsR103.uleLpoiq644uwt4OC5oSndTC6nVPxJVS	2
 \.
 
 
@@ -427,7 +428,7 @@ COPY public."user" (user_id, first_name, last_name, mid_name, email, password_ha
 -- Name: order_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.order_order_id_seq', 1, false);
+SELECT pg_catalog.setval('public.order_order_id_seq', 18, true);
 
 
 --

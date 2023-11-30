@@ -8,8 +8,8 @@ router.get('/products/:productId', customerController.GetProduct)
 router.get('/cart', customerController.GetShoppingCart)
 router.post('/cart', customerController.AddItemToCart)
 router.delete('/cart/:productId', customerController.DeleteItemFromCart)
-router.post('/orders')
-router.get('/orders')
-router.get('/orders/:orderId')
+router.post('/orders', customerController.CreateOrder)
+router.get('/orders/self', customerController.GetOrders)
+router.get('/orders/self/:orderId', customerController.GetOrder)
 
 module.exports = router

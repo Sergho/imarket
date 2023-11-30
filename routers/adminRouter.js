@@ -12,7 +12,11 @@ router.get('/product/types', adminController.GetProductTypes)
 router.post('/products', adminController.CreateProduct)
 router.put('/products/:productId', adminController.EditProduct)
 router.delete('/products/:productId', adminController.DeleteProduct)
-router.get('/users/:userId/orders')
-router.get('/users/:userId/orders/:orderId')
+router.get('/users/:userId/orders', adminController.GetOrders)
+router.get('/orders/:orderId', adminController.GetOrder)
+router.put('/orders/:orderId', adminController.EditOrder)
+router.post('/orders/:orderId/products/:productId', adminController.AddItemToOrder)
+router.delete('/orders/:orderId/products/:productId', adminController.DeleteItemFromOrder)
+router.delete('/orders/:orderId', adminController.DeleteOrder)
 
 module.exports = router

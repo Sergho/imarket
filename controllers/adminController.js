@@ -1,5 +1,6 @@
 const user = require('../models/User')
 const product = require('../models/Product')
+const order = require('../models/Order')
 
 class AdminController{
     async GetRoles(req, res){
@@ -164,6 +165,128 @@ class AdminController{
         } catch (e) {
             console.log(e)
             return res.status(500).json({message: "Product error"})
+        }
+    }
+
+    async GetOrders(req, res){
+        try {
+            if(!req.params.userId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const orders = await order.GetOrders(req.params.userId)
+            if(orders.length == 0){
+                return res.status(404).json({message: "Orders not found"})
+            }
+
+            return res.status(200).json({message: "OK", orders: orders})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
+        }
+    }
+    async GetOrder(req, res){
+        try {
+            if(!req.params.orderId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const singleOrder = await order.GetOrder(req.params.orderId)
+            if(!singleOrder){
+                return res.status(404).json({message: "Order not found"})
+            }
+
+            return res.status(200).json({message: "OK", order: singleOrder})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
+        }
+    }
+    async EditOrder(req, res){
+        try {
+            if(!req.params.orderId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            if(req.body.ownerId && !await user.GetUser(req.body.ownerId)){
+                return res.status(404).json({message: "Owner not found"})
+            }
+
+            if(!await order.GetOrder(req.params.orderId)){
+                return res.status(404).json({message: "Order not found"})
+            }
+
+            const modified = await order.EditOrder(req.params.orderId, req.body)
+            if(!modified){
+                return res.status(404).json({message: "Order not found"})
+            }
+            return res.status(200).json({message: "Order modified", order: modified})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
+        }
+    }
+    async AddItemToOrder(req, res){
+        try {
+            if(!req.params.orderId || !req.params.productId || !req.body.amount){
+                return res.status(400).json({message: "Bad request"})
+            }
+            
+            if(!await product.GetProduct(req.params.productId)){
+                return res.status(404).json({message: "Product not found"})
+            }
+
+            if(!await order.GetOrder(req.params.orderId)){
+                return res.status(404).json({message: "Order not found"})
+            }
+
+            if(await order.GetItem(req.params.orderId, req.params.productId)){
+                return res.status(409).json({message: "Product is already in the order"})
+            }
+
+            const item = await order.AddItem(req.params.orderId, req.params.productId, req.body.amount)
+            return res.status(200).json({message: "Item added to the order", item: item})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
+        }
+    }
+    async DeleteItemFromOrder(req, res){
+        try {
+            if(!req.params.orderId || !req.params.productId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            if(!await order.GetOrder(req.params.orderId)){
+                return res.status(404).json({message: "Order not found"})
+            }
+
+            if(!await order.GetItem(req.params.orderId, req.params.productId)){
+                return res.status(404).json({message: "Product not found in the order"})
+            }
+
+            const deleted = await order.DeleteItem(req.params.orderId, req.params.productId)
+            return res.status(200).json({message: "Item deleted from order", item: deleted})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
+        }
+    }
+    async DeleteOrder(req, res){
+        try {
+            if(!req.params.orderId){
+                return res.status(400).json({message: "Bad request"})
+            }
+
+            const deleted = await order.DeleteOrder(req.params.orderId)
+            if(!deleted){
+                return res.status(404).json({message: "Order not found"})
+            }
+
+            return res.status(200).json({message: "Order deleted", order: deleted})
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({message: "Order error"})
         }
     }
 }

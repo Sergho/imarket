@@ -10,11 +10,11 @@ const app = express()
 
 app.use(express.json())
 app.use((err, req, res, next) => {
+    console.log("test")
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        res.status(400).json({ message: 'Incorrect JSON format' });
-    } else {
-        next();
+        return res.status(400).json({message: 'Incorrect JSON format'});
     }
+    next();
 });
 
 app.use('/auth', authRouter)
@@ -26,6 +26,10 @@ app.use(customerRouter)
 app.use(adminMiddleware)
 
 app.use(adminRouter)
+
+app.use((req, res) => {
+    return res.status(404).json({message: "Unknown route"})
+});
 
 const start = () => {
     try {

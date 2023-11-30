@@ -6,15 +6,7 @@ class ShoppingCart{
     async GetCart(userId){
         const cart = {
             owner: await user.GetUser(userId),
-            items: []
-        }
-        const products = await db.query('SELECT product_id, amount FROM "shopping_cart" WHERE user_id = $1', [userId])
-        for(const row of products.rows){
-            const singleProduct = await product.GetProduct(row.product_id)
-            await cart.items.push({
-                product: singleProduct,
-                amount: row.amount
-            })
+            items: await this.GetItems(userId)
         }
         return cart
     }
@@ -25,6 +17,18 @@ class ShoppingCart{
             product: await product.GetProduct(productId),
             amount: amount.rows[0].amount
         }
+    }
+    async GetItems(userId){
+        const result = []
+        const items = await db.query('SELECT product_id, amount FROM "shopping_cart" WHERE user_id = $1', [userId])
+        for(const row of items.rows){
+            const singleProduct = await product.GetProduct(row.product_id)
+            await result.push({
+                product: singleProduct,
+                amount: row.amount
+            })
+        }
+        return result
     }
 
     async AddItem(userId, productId, amount){
@@ -39,6 +43,10 @@ class ShoppingCart{
         const deleted = await this.GetItem(userId, productId);
         await db.query('DELETE FROM "shopping_cart" WHERE user_id = $1 AND product_id = $2', [userId, productId])
         return deleted
+    }
+    async ClearCart(userId){
+        await db.query('DELETE FROM "shopping_cart" WHERE user_id = $1', [userId])
+        return await this.GetCart(userId)
     }
 }
 
